@@ -88,7 +88,6 @@ class CitizensTest {
     @org.junit.jupiter.api.Test
     void testGetAllPersonsSortedById() {
 
-        Comparator<Person> comparator = (p1, p2) -> Integer.compare(p1.getId(), p2.getId());
         Iterable<Person> res = citizens.getAllPersonsSortedById();
 
         List<Person> expected = new ArrayList<>();
