@@ -101,7 +101,7 @@ public class CitizensImpl implements Citizens{
 
        List<Person> res = ageList.subList(indexFrom, Math.min(indexTo + 1, ageList.size()));
 
-       return new CitizensImpl(res).ageList;
+       return new ArrayList<>(res);
     }
 
     @Override
