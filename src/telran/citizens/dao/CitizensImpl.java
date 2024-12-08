@@ -14,67 +14,78 @@ public class CitizensImpl implements Citizens{
     private List<Person> ageList;
     public static Comparator<Person> lastNameComparator;
     public static Comparator<Person> ageComparator;
-    private static Comparator<Person> idComparator;
+    private static Comparator<Person> idComparator = (p1, p2) -> Integer.compare(p1.getId(), p2.getId());
 
+    static {
+        lastNameComparator = (p1, p2) -> {
+            int res = p1.getLastName().compareTo(p2.getLastName());
+            return res != 0 ? res : Integer.compare(p1.getId(), p2.getId());
+        };
+        ageComparator = (p1, p2) -> {
+            int res = Integer.compare(p1.getAge(), p2.getAge());
+            return res != 0 ? res : Integer.compare(p1.getId(), p2.getId());
+        };
+    }
     public CitizensImpl() {
         idList = new ArrayList<>();
         lastNameList = new ArrayList<>();
         ageList = new ArrayList<>();
-
-        idComparator = (p1, p2) -> Integer.compare(p1.getId(), p2.getId());
-        lastNameComparator = (p1, p2) -> p1.getLastName().compareTo(p2.getLastName());
-        ageComparator = (p1, p2) -> Integer.compare(p1.getAge(), p2.getAge());
     }
 
     public CitizensImpl(List<Person> citizens){
 
         this();
-
-        for (Person person : citizens) {
-            add(person);
-        }
+        citizens.forEach(person -> add(person));
     }
 
 
     @Override
     public boolean add(Person person) {
 
-        if (person == null
-                || find(person.getId()) != null) {
+        if (person == null) {
             return false;
         }
 
-        insertToList(person, idList, idComparator);
-        insertToList(person, lastNameList, lastNameComparator);
-        insertToList(person, ageList, ageComparator);
+        int index = Collections.binarySearch(idList, person);
+        if (index > 0){
+            return false;
+        }
+        index = -index - 1;
+        idList.add(index, person);
+
+        index = Collections.binarySearch(ageList, person, ageComparator);
+        index = index >= 0 ? index: -index - 1;
+        ageList.add(index, person);
+
+        index = Collections.binarySearch(lastNameList, person, lastNameComparator);
+        index = index >= 0 ? index: -index - 1;
+        lastNameList.add(index, person);
 
         return true;
     }
 
-    private void insertToList(Person person, List<Person> list, Comparator<Person> comparator){
-        int index = Collections.binarySearch(list, person, comparator);
-        index = index >= 0? index: -index - 1;
-        list.add(index, person);
-    }
+    //O(n)
     @Override
     public boolean remove(int id) {
 
-        Person person = find(id);
-        if (person == null){
+        Person victim = find(id);
+        if (victim == null){
             return false;
         }
 
-        return idList.remove(person)
-                && lastNameList.remove(person)
-                && ageList.remove(person);
+        idList.remove(victim);
+        lastNameList.remove(victim);
+        ageList.remove(victim);
+        return true;
     }
 
+    //O(log(n))
     @Override
     public Person find(int id) {
-        Person pattern = new Person(id, "", "", LocalDate.now());
+        Person pattern = new Person(id, "", "", null);
 
-        int index = Collections.binarySearch(idList, pattern, idComparator);
-        return index < 0? null: idList.get(index);
+        int index = Collections.binarySearch(idList, pattern);
+        return index < 0 ? null: idList.get(index);
     }
 
     @Override
@@ -86,53 +97,40 @@ public class CitizensImpl implements Citizens{
 
         LocalDate now = LocalDate.now();
 
-        Person patternFrom = new Person(Integer.MIN_VALUE, "", "", now.minusYears(minAge));
-        Person patternTo = new Person(Integer.MIN_VALUE, "", "", now.minusYears(maxAge));
+        Person pattern = new Person(Integer.MIN_VALUE, "", "", now.minusYears(minAge));
 
-        int indexFrom = Collections.binarySearch(ageList, patternFrom, ageComparator);
-        int indexTo = Collections.binarySearch(ageList, patternTo, ageComparator);
+        int from = -Collections.binarySearch(ageList, pattern, ageComparator) - 1;
 
-        if (indexFrom == indexTo && indexFrom < 0){
-            return new ArrayList<>();
-        }
+        pattern = new Person(Integer.MAX_VALUE, "", "", now.minusYears(maxAge));
+        int to = -Collections.binarySearch(ageList, pattern, ageComparator) - 1;
 
-        indexFrom = indexFrom >= 0 ? indexFrom : -indexFrom - 1;
-        indexTo = indexTo >= 0 ? indexTo : -indexTo - 1;
-
-       List<Person> res = ageList.subList(indexFrom, Math.min(indexTo + 1, ageList.size()));
-
-       return new ArrayList<>(res);
+        return ageList.subList(from, to);
     }
 
     @Override
     public Iterable<Person> find(String lastName) {
 
-        Person pattern = new Person(Integer.MIN_VALUE, "", lastName, LocalDate.now());
+        Person pattern = new Person(Integer.MIN_VALUE, "", lastName, null);
+        int from = -Collections.binarySearch(lastNameList, pattern, lastNameComparator) - 1;
+        pattern = new Person(Integer.MAX_VALUE, "", lastName, null);
+        int to = -Collections.binarySearch(lastNameList, pattern, lastNameComparator) - 1;
 
-        List<Person> res = new ArrayList<>();
-        for (Person person : lastNameList) {
-            if (lastNameComparator.compare(person, pattern) > 0){
-                break;
-            }
-
-            if (lastName.equals(person.getLastName())){
-                res.add(person);
-            }
-        }
-
-        return res;
+        return lastNameList.subList(from, to);
     }
 
+    //O(1)
     @Override
     public Iterable<Person> getAllPersonsSortedById() {
         return idList;
     }
 
+    //O(1)
     @Override
     public Iterable<Person> getAllPersonsSortedByAge() {
         return ageList;
     }
 
+    //O(1)
     @Override
     public Iterable<Person> getAllPersonsSortedByLastName() {
         return lastNameList;

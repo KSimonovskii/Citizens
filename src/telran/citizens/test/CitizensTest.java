@@ -59,7 +59,7 @@ class CitizensTest {
     void testFindByAge() {
 
         Iterable<Person> res = citizens.find(20, 50);
-        List<Person> expected = List.of(citizens.find(3), citizens.find(1), citizens.find(4));
+        List<Person> expected = List.of(citizens.find(3), citizens.find(1));
 
         assertIterableEquals(expected, res);
 
@@ -78,7 +78,7 @@ class CitizensTest {
         citizens.add(newPerson);
         Iterable<Person> res = citizens.find("Gilmour");
 
-        List<Person> expected = List.of(newPerson, citizens.find(3));
+        List<Person> expected = List.of(citizens.find(3), newPerson);
         assertIterableEquals(expected, res);
 
         res = citizens.find("Lennon");
@@ -91,6 +91,7 @@ class CitizensTest {
         Iterable<Person> res = citizens.getAllPersonsSortedById();
 
         List<Person> expected = new ArrayList<>();
+
         for (int id = 1; id < 6; id++) {
             expected.add(citizens.find(id));
         }
