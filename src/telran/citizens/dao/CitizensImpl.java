@@ -30,15 +30,9 @@ public class CitizensImpl implements Citizens{
 
         this();
 
-        idList = citizens.subList(0, citizens.size());
-        idList.sort(idComparator);
-
-        lastNameList = citizens.subList(0, citizens.size());
-        lastNameList.sort(lastNameComparator);
-
-        ageList = citizens.subList(0, citizens.size());
-        ageList.sort(ageComparator);
-
+        for (Person person : citizens) {
+            add(person);
+        }
     }
 
 
@@ -105,7 +99,9 @@ public class CitizensImpl implements Citizens{
         indexFrom = indexFrom >= 0 ? indexFrom : -indexFrom - 1;
         indexTo = indexTo >= 0 ? indexTo : -indexTo - 1;
 
-        return ageList.subList(indexFrom, Math.min(indexTo + 1, ageList.size()));
+       List<Person> res = ageList.subList(indexFrom, Math.min(indexTo + 1, ageList.size()));
+
+       return new CitizensImpl(res).ageList;
     }
 
     @Override
