@@ -47,7 +47,7 @@ public class CitizensImpl implements Citizens{
         }
 
         int index = Collections.binarySearch(idList, person);
-        if (index > 0){
+        if (index >= 0){
             return false;
         }
         index = -index - 1;

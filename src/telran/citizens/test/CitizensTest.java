@@ -1,6 +1,7 @@
 package telran.citizens.test;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import telran.citizens.dao.Citizens;
 import telran.citizens.dao.CitizensImpl;
 import telran.citizens.model.Person;
@@ -25,6 +26,41 @@ class CitizensTest {
         citizens.add(new Person(5, "Jimmy", "Hendrix", LocalDate.of(2010, 3, 25)));
     }
 
+    @Test
+    void testConctructor(){
+        LocalDate now = LocalDate.now();
+        List<Person> list = new ArrayList<>();
+        list.add(new Person(4, "Jan", "Gillan", LocalDate.of(1972, 6, 30)));
+        list.add(new Person(2, "Angus", "Young", LocalDate.of(1943, 2, 21)));
+        list.add(new Person(2, "Jimmy", "Page", LocalDate.of(1943, 2, 21)));
+        list.add(new Person(1, "Ozzy", "Osborn", LocalDate.of(1986, 5, 5)));
+        list.add(null);
+
+        Citizens res = new CitizensImpl(list);
+        assertEquals(3, res.size());
+
+        List<Person> expected = new ArrayList<>();
+        expected.add(new Person(1, "Ozzy", "Osborn", LocalDate.of(1986, 5, 5)));
+        expected.add(new Person(2, "Angus", "Young", LocalDate.of(1943, 2, 21)));
+        expected.add(new Person(4, "Jan", "Gillan", LocalDate.of(1972, 6, 30)));
+
+        assertIterableEquals(expected, res.getAllPersonsSortedById());
+
+        expected = new ArrayList<>();
+        expected.add(new Person(1, "Ozzy", "Osborn", LocalDate.of(1986, 5, 5)));
+        expected.add(new Person(4, "Jan", "Gillan", LocalDate.of(1972, 6, 30)));
+        expected.add(new Person(2, "Angus", "Young", LocalDate.of(1943, 2, 21)));
+
+        assertIterableEquals(expected, res.getAllPersonsSortedByAge());
+
+        expected = new ArrayList<>();
+        expected.add(new Person(4, "Jan", "Gillan", LocalDate.of(1972, 6, 30)));
+        expected.add(new Person(1, "Ozzy", "Osborn", LocalDate.of(1986, 5, 5)));
+        expected.add(new Person(2, "Angus", "Young", LocalDate.of(1943, 2, 21)));
+
+        assertIterableEquals(expected, res.getAllPersonsSortedByLastName());
+
+    }
     @org.junit.jupiter.api.Test
     void testAdd() {
 
